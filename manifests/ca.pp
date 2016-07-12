@@ -168,7 +168,7 @@ define openvpn::ca(
   }
 
   exec { "generate dh param ${name}":
-    command  => '. ./vars && ./clean-all && ./build-dh',
+    command  => '. ./vars && ./build-dh',
     cwd      => "${etc_directory}/openvpn/${name}/easy-rsa",
     creates  => "${etc_directory}/openvpn/${name}/easy-rsa/keys/dh${ssl_key_size}.pem",
     provider => 'shell',
