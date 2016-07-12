@@ -49,6 +49,11 @@
 #     and KEY_OU in vars
 #   Default: None
 #
+# [*key_altnames*]
+#   String.  Value for organizationalUnitName_default variable in openssl.cnf
+#     and KEY_ALTNAMES in vars
+#   Default: None
+#
 # [*key_cn*]
 #   String.  Value for commonName_default variable in openssl.cnf
 #     and KEY_CN in vars
@@ -103,6 +108,7 @@ define openvpn::ca(
   $key_cn       = '',
   $key_name     = '',
   $key_ou       = '',
+  $key_altnames = '',
   $tls_auth     = false,
 ) {
 

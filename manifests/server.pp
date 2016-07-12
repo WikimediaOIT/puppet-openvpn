@@ -483,6 +483,7 @@ define openvpn::server(
   $key_cn                    = '',
   $key_name                  = '',
   $key_ou                    = '',
+  $key_altnames              = '',
   $verb                      = '',
   $cipher                    = '',
   $tls_cipher                = undef,
@@ -619,6 +620,7 @@ define openvpn::server(
         key_cn       => $key_cn,
         key_name     => $key_name,
         key_ou       => $key_ou,
+        key_altnames => $key_altnames,
         tls_auth     => $tls_auth,
       }
     } elsif !$extca_enabled {
