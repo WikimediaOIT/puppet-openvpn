@@ -168,7 +168,7 @@ define openvpn::ca(
   }
 
   exec { "generate dh param ${name}":
-    command  => '. ./vars && ./build-dh',
+    command  => '. ./vars && ./clean-all && ./build-dh',
     cwd      => "${etc_directory}/openvpn/${name}/easy-rsa",
     creates  => "${etc_directory}/openvpn/${name}/easy-rsa/keys/dh${ssl_key_size}.pem",
     provider => 'shell',
@@ -197,34 +197,34 @@ define openvpn::ca(
     require => Exec["copy easy-rsa to openvpn config folder ${name}"],
   }
 
-  # exec { "create crl.pem on ${name}":
-  #   command  => ". ./vars && KEY_CN='' KEY_OU='' KEY_NAME='' KEY_ALTNAMES='' openssl ca -gencrl -out ${etc_directory}/openvpn/${name}/crl.pem -config ${etc_directory}/openvpn/${name}/easy-rsa/openssl.cnf",
-  #   cwd      => "${etc_directory}/openvpn/${name}/easy-rsa",
-  #   creates  => "${etc_directory}/openvpn/${name}/crl.pem",
-  #   provider => 'shell',
-  #   require  => Exec["generate server cert ${name}"],
-  # }
-  #
-  # file { "${etc_directory}/openvpn/${name}/crl.pem":
-  #   mode    => '0640',
-  #   group   =>  $group_to_set,
-  #   require => Exec["create crl.pem on ${name}"],
-  # }
-  #
-  # if $tls_auth {
-  #   exec { "generate tls key for ${name}":
-  #     command  => 'openvpn --genkey --secret keys/ta.key',
-  #     cwd      => "${etc_directory}/openvpn/${name}/easy-rsa",
-  #     creates  => "${etc_directory}/openvpn/${name}/easy-rsa/keys/ta.key",
-  #     provider => 'shell',
-  #     require  => Exec["generate server cert ${name}"],
-  #   }
-  # }
-  #
-  # file { "${etc_directory}/openvpn/${name}/easy-rsa/keys/crl.pem":
-  #   ensure  => link,
-  #   target  => "${etc_directory}/openvpn/${name}/crl.pem",
-  #   require => Exec["create crl.pem on ${name}"],
-  # }
+  exec { "create crl.pem on ${name}":
+    command  => ". ./vars && KEY_CN='' KEY_OU='' KEY_NAME='' KEY_ALTNAMES='' openssl ca -gencrl -out ${etc_directory}/openvpn/${name}/crl.pem -config ${etc_directory}/openvpn/${name}/easy-rsa/openssl.cnf",
+    cwd      => "${etc_directory}/openvpn/${name}/easy-rsa",
+    creates  => "${etc_directory}/openvpn/${name}/crl.pem",
+    provider => 'shell',
+    require  => Exec["generate server cert ${name}"],
+  }
+
+  file { "${etc_directory}/openvpn/${name}/crl.pem":
+    mode    => '0640',
+    group   =>  $group_to_set,
+    require => Exec["create crl.pem on ${name}"],
+  }
+
+  if $tls_auth {
+    exec { "generate tls key for ${name}":
+      command  => 'openvpn --genkey --secret keys/ta.key',
+      cwd      => "${etc_directory}/openvpn/${name}/easy-rsa",
+      creates  => "${etc_directory}/openvpn/${name}/easy-rsa/keys/ta.key",
+      provider => 'shell',
+      require  => Exec["generate server cert ${name}"],
+    }
+  }
+
+  file { "${etc_directory}/openvpn/${name}/easy-rsa/keys/crl.pem":
+    ensure  => link,
+    target  => "${etc_directory}/openvpn/${name}/crl.pem",
+    require => Exec["create crl.pem on ${name}"],
+  }
 
 }
